@@ -177,130 +177,90 @@ class _MusicScreenState extends State<MusicScreen> with WidgetsBindingObserver, 
 
   @override
   Widget build(BuildContext context) {
-    // Determine the screen orientation
-    bool isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
-
-    // Define the layout for portrait and landscape
     return Scaffold(
       appBar: AppBar(
-        title: Text("Lecteur de Musique"),
+        backgroundColor: Colors.blueGrey,
+        title: Text("Lecteur de Musique", style: TextStyle(fontSize: 24, color: Colors.white)),
         actions: [
           IconButton(
-            icon: Icon(Icons.favorite),
+            icon: Icon(Icons.favorite, color: Colors.red),
             onPressed: _goToFavorites,
           ),
         ],
       ),
-      body: Center(
-        child: isPortrait
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset('assets/image1.png', width: 250, height: 250),
-                  SizedBox(height: 20),
-                  showControls
-                      ? Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                IconButton(
-                                    icon: Icon(Icons.skip_previous),
-                                    onPressed: _playPrevious),
-                                IconButton(
-                                  icon: Icon(isPlaying
-                                      ? Icons.pause
-                                      : Icons.play_arrow),
-                                  onPressed: _togglePlayPause,
-                                ),
-                                IconButton(
-                                    icon: Icon(Icons.skip_next),
-                                    onPressed: _playNext),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(songName),
-                                IconButton(
-                                  icon: Icon(isFavorite
-                                      ? Icons.favorite
-                                      : Icons.favorite_border),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isLandscape = constraints.maxWidth > constraints.maxHeight;
+
+          // Dynamically adjust sizes based on orientation
+          double imageSize = isLandscape ? 180 : 250;
+          double iconSize = isLandscape ? 30 : 36;
+          double textSize = isLandscape ? 14 : 18;
+
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Adjust the image size for landscape
+                Flexible(
+                  child: Image.asset('assets/image1.png', width: imageSize, height: imageSize),
+                ),
+                SizedBox(height: 20),
+                showControls
+                    ? Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.skip_previous, color: Colors.blueGrey),
+                                onPressed: _playPrevious,
+                              ),
+                              IconButton(
+                                icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow, color: Colors.blue),
+                                onPressed: _togglePlayPause,
+                                iconSize: iconSize,
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.skip_next, color: Colors.blueGrey),
+                                onPressed: _playNext,
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 15),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(songName, style: TextStyle(fontSize: textSize, color: Colors.black87)),
+                              IconButton(
+                                icon: Icon(
+                                  isFavorite ? Icons.favorite : Icons.favorite_border,
                                   color: Colors.red,
-                                  onPressed: _toggleFavorite,
                                 ),
-                              ],
-                            ),
-                          ],
-                        )
-                      : IconButton(
-                          icon: Icon(Icons.play_arrow, size: 30),
-                          onPressed: () {
-                            _player.play();
-                            setState(() {
-                              isPlaying = true;
-                              showControls = true;
-                            });
-                          },
-                        ),
-                ],
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset('assets/image1.png', width: 250, height: 250),
-                  SizedBox(width: 20),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      showControls
-                          ? Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    IconButton(
-                                        icon: Icon(Icons.skip_previous),
-                                        onPressed: _playPrevious),
-                                    IconButton(
-                                      icon: Icon(isPlaying
-                                          ? Icons.pause
-                                          : Icons.play_arrow),
-                                      onPressed: _togglePlayPause,
-                                    ),
-                                    IconButton(
-                                        icon: Icon(Icons.skip_next),
-                                        onPressed: _playNext),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Text(songName),
-                                    IconButton(
-                                      icon: Icon(isFavorite
-                                          ? Icons.favorite
-                                          : Icons.favorite_border),
-                                      color: Colors.red,
-                                      onPressed: _toggleFavorite,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            )
-                          : IconButton(
-                              icon: Icon(Icons.play_arrow, size: 30),
-                              onPressed: () {
-                                _player.play();
-                                setState(() {
-                                  isPlaying = true;
-                                  showControls = true;
-                                });
-                              },
-                            ),
-                    ],
-                  ),
-                ],
-              ),
+                                onPressed: _toggleFavorite,
+                              )
+                            ],
+                          ),
+                        ],
+                      )
+                    : IconButton(
+                        icon: Icon(Icons.play_arrow, size: iconSize, color: Colors.blue),
+                        onPressed: () {
+                          _player.play();
+                          setState(() {
+                            isPlaying = true;
+                            showControls = true;
+                          });
+                        },
+                      ),
+              ],
+            ),
+          );
+        },
       ),
+      backgroundColor: Colors.grey[100],
     );
   }
 }

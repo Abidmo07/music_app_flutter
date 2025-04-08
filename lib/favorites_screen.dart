@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'song_details_screen.dart';
 
 class FavoritesScreen extends StatefulWidget {
   final Function(String) onSongDeleted;
@@ -30,7 +31,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   void _deleteFavorite(String songName) async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      prefs.remove(songName); 
+      prefs.remove(songName);
       favoriteSongs.remove(songName);
       widget.onSongDeleted(songName);
     });
@@ -41,7 +42,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final orientation = MediaQuery.of(context).orientation;
 
     return Scaffold(
-      appBar: AppBar(title: Text("Mes Favoris")),
+      appBar: AppBar(
+        title: Text("Mes Favoris", style: TextStyle(fontSize: 24, color: Colors.white)),
+        backgroundColor: Colors.blueGrey,
+      ),
       body: orientation == Orientation.portrait
           ? _buildPortraitLayout()
           : _buildLandscapeLayout(),
@@ -54,7 +58,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       itemBuilder: (context, index) {
         return GestureDetector(
           onLongPress: () {
-            // Show a confirmation dialog to delete the song
             showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -70,7 +73,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        _deleteFavorite(favoriteSongs[index]); 
+                        _deleteFavorite(favoriteSongs[index]);
                         Navigator.of(context).pop();
                       },
                       child: Text("Delete"),
@@ -81,7 +84,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             );
           },
           onTap: () {
-            // Show song details in portrait mode (as a new page)
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -90,7 +92,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             );
           },
           child: ListTile(
-            title: Text(favoriteSongs[index]),
+            title: Text(favoriteSongs[index], style: TextStyle(color: Colors.black87)),
           ),
         );
       },
@@ -112,7 +114,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   });
                 },
                 child: ListTile(
-                  title: Text(favoriteSongs[index]),
+                  title: Text(favoriteSongs[index], style: TextStyle(color: Colors.black87)),
                 ),
               );
             },
@@ -124,43 +126,36 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             flex: 3,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Song Details:",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    "Song Name: $selectedSong",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  // Add more details if needed here, e.g., song artist, album, etc.
-                ],
+              child: Card(
+                elevation: 6,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Song Details",
+                        style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.blueGrey),
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        "Song Name: $selectedSong",
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.blueGrey[800]),
+                      ),
+                      SizedBox(height: 20),
+                      Text(
+                        "This is a detailed description of the song. Here you can provide more information about the artist, album, or genre of the song.",
+                        style: TextStyle(fontSize: 16, color: Colors.black54, height: 1.5),
+                      ),                   
+      ]),
+                ),
               ),
             ),
           ),
       ],
-    );
-  }
-}
-
-class SongDetailsScreen extends StatelessWidget {
-  final String songName;
-
-  const SongDetailsScreen({super.key, required this.songName});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(songName)),
-      body: Center(
-        child: Text(
-          "Details about the song: $songName",
-          style: TextStyle(fontSize: 20),
-        ),
-      ),
     );
   }
 }

@@ -9,34 +9,29 @@ class SongDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(songName),
-        backgroundColor: Colors.deepPurpleAccent,
+        title: Text(songName, style: TextStyle(fontSize: 24,color:Colors.white)),
+        backgroundColor: Colors.blueGrey,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Music Icon
             Icon(
               Icons.music_note,
-              color: Colors.deepPurple,
+              color: Colors.blueGrey,
               size: 120,
             ),
             SizedBox(height: 20),
-
-            // Song Name with styling
             Text(
               songName,
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Colors.deepPurpleAccent,
+                color: Colors.blueGrey,
               ),
             ),
             SizedBox(height: 10),
-
-            // Description text with more info
             Text(
               "This is a detailed description of the song. Here you can provide more information about the artist, album, or genre of the song.",
               textAlign: TextAlign.center,
@@ -47,38 +42,13 @@ class SongDetailsScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
-
-            // Play button (No 'primary' used here)
             ElevatedButton(
               onPressed: () {
-                // Add action to play song or show more details
+                Navigator.pop(context);
               },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.play_arrow),
-                  SizedBox(width: 8),
-                  Text("Play Song"),
-                ],
-              ),
+              child: Text("Back",style: TextStyle(color: Colors.white),),
               style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(Colors.deepPurpleAccent),
-                padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
-                shape: WidgetStateProperty.all(RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                )),
-              ),
-            ),
-            SizedBox(height: 20),
-
-            // Back Button (No 'primary' used here either)
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context); // Go back to the previous screen
-              },
-              child: Text("Back"),
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(Colors.grey[600]),
+                backgroundColor: WidgetStateProperty.all( Colors.blueGrey),
                 padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 30, vertical: 12)),
                 shape: WidgetStateProperty.all(RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
