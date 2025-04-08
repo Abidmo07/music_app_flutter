@@ -1,0 +1,44 @@
+name: flutter_application_1
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.5.3
+  cupertino_icons: ^1.0.8
+  just_audio: ^0.9.46
+  flutter_native_splash: ^2.4.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/image1.png
+    - assets/abdou22.mp3
+    - assets/fur elise.mp3
+    - assets/splash.jpeg
+
+flutter_native_splash:
+  image: assets/splash.jpeg
+  color: "#ffffff"
+  android: true
+  ios: true
+  fullscreen: true
+  android_gravity: center
+  ios_content_mode: center
+
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: assets/icon.png
