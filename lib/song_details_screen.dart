@@ -46,7 +46,6 @@ class SongDetailsScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text("Back",style: TextStyle(color: Colors.white),),
               style: ButtonStyle(
                 backgroundColor: WidgetStateProperty.all( Colors.blueGrey),
                 padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 30, vertical: 12)),
@@ -54,6 +53,7 @@ class SongDetailsScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 )),
               ),
+              child: Text("Back",style: TextStyle(color: Colors.white),),
             ),
           ],
         ),

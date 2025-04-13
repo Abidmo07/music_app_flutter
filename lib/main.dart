@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'favorites_screen.dart';
+import 'song_screen.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
 
 void main() {
-  runApp(MusicApp());
+  runApp(const MusicApp());
 }
 
 class MusicApp extends StatelessWidget {
@@ -17,7 +18,7 @@ class MusicApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       navigatorObservers: [routeObserver],
-      home: MusicScreen(),
+      home: const MusicScreen(),
     );
   }
 }
@@ -35,7 +36,6 @@ class _MusicScreenState extends State<MusicScreen> with WidgetsBindingObserver, 
   bool isFavorite = false;
   bool showControls = false;
   String songName = "";
-
   int currentSongIndex = 0;
 
   List<Map<String, String>> songs = [
@@ -44,8 +44,12 @@ class _MusicScreenState extends State<MusicScreen> with WidgetsBindingObserver, 
       'asset': 'assets/fur elise.mp3',
     },
     {
-      'name': 'Rani 3ayan - Abdou Gumbetta ',
-      'asset': 'assets/abdou22.mp3',
+      'name': 'Alhamdulilah - Khabib',
+      'asset': 'assets/khabib.mp3',
+    },
+    {
+      'name': 'Nasheed - Nasheed',
+      'asset': 'assets/nasheed.mp3',
     },
   ];
 
@@ -57,11 +61,13 @@ class _MusicScreenState extends State<MusicScreen> with WidgetsBindingObserver, 
   }
 
   Future<void> _loadSong(int index) async {
+    // Load the asset
     await _player.setAsset(songs[index]['asset']!);
     setState(() {
       songName = songs[index]['name']!;
       showControls = true;
-      isPlaying = false;
+      // When loading a song, we assume it should play:
+      isPlaying = true;
     });
     _loadFavoriteStatus();
   }
@@ -69,14 +75,13 @@ class _MusicScreenState extends State<MusicScreen> with WidgetsBindingObserver, 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
+    // Pause the player when the app goes background
     if (state == AppLifecycleState.paused) {
       _player.pause();
     } else if (state == AppLifecycleState.resumed) {
-      final route = ModalRoute.of(context);
-      if (route != null && route.isCurrent) {
-        if (isPlaying) {
-          _player.play();
-        }
+      // Resume playing if we believe the song was playing.
+      if (isPlaying) {
+        _player.play();
       }
     }
   }
@@ -97,24 +102,36 @@ class _MusicScreenState extends State<MusicScreen> with WidgetsBindingObserver, 
 
   @override
   void didPopNext() {
-    if (isPlaying) {
-      _player.play();
-    }
+    // When coming back to MusicScreen, resume playback and update the UI.
+    _player.play();
     setState(() {
       isPlaying = true;
       showControls = true;
     });
   }
 
-  void _togglePlayPause() {
+  @override
+  void didPushNext() {
+    // Pause music when navigating away to any screen.
+    _player.pause();
     setState(() {
-      if (isPlaying) {
-        _player.pause();
-      } else {
-        _player.play();
-      }
-      isPlaying = !isPlaying;
+      isPlaying = false;
     });
+  }
+
+  void _togglePlayPause() {
+    // Manually toggle play/pause and update the icon accordingly.
+    if (isPlaying) {
+      _player.pause();
+      setState(() {
+        isPlaying = false;
+      });
+    } else {
+      _player.play();
+      setState(() {
+        isPlaying = true;
+      });
+    }
   }
 
   void _toggleFavorite() async {
@@ -134,16 +151,38 @@ class _MusicScreenState extends State<MusicScreen> with WidgetsBindingObserver, 
 
   void _goToFavorites() {
     _player.stop();
-
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => FavoritesScreen(
-          onSongDeleted: (songName) {
+          onSongDeleted: (deletedSongName) {
             setState(() {
-              if (songName == this.songName) {
+              if (deletedSongName == songName) {
                 isFavorite = false;
               }
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  void _goToSongList() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SongScreen(
+          songs: songs,
+          onSongSelected: (int index) {
+            setState(() {
+              currentSongIndex = index;
+              _loadSong(currentSongIndex).then((_) {
+                // After loading, play the song.
+                _player.play();
+                setState(() {
+                  isPlaying = true;
+                });
+              });
             });
           },
         ),
@@ -155,10 +194,10 @@ class _MusicScreenState extends State<MusicScreen> with WidgetsBindingObserver, 
     if (currentSongIndex < songs.length - 1) {
       currentSongIndex++;
       _loadSong(currentSongIndex).then((_) {
+        _player.play();
         setState(() {
           isPlaying = true;
         });
-        _player.play();
       });
     }
   }
@@ -167,10 +206,10 @@ class _MusicScreenState extends State<MusicScreen> with WidgetsBindingObserver, 
     if (currentSongIndex > 0) {
       currentSongIndex--;
       _loadSong(currentSongIndex).then((_) {
+        _player.play();
         setState(() {
           isPlaying = true;
         });
-        _player.play();
       });
     }
   }
@@ -180,34 +219,40 @@ class _MusicScreenState extends State<MusicScreen> with WidgetsBindingObserver, 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blueGrey,
-        title: Text("Lecteur de Musique", style: TextStyle(fontSize: 24, color: Colors.white)),
+        title: const Text(
+          "Lecteur de Musique",
+          style: TextStyle(fontSize: 24, color: Colors.white),
+        ),
         actions: [
           IconButton(
-            icon: Icon(Icons.favorite, color: Colors.red),
+            icon: const Icon(Icons.favorite, color: Colors.red),
             onPressed: _goToFavorites,
+          ),
+          IconButton(
+            icon: const Icon(Icons.library_music, color: Colors.white),
+            onPressed: _goToSongList,
           ),
         ],
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isLandscape = constraints.maxWidth > constraints.maxHeight;
-
-          // Dynamically adjust sizes based on orientation
           double imageSize = isLandscape ? 180 : 250;
           double iconSize = isLandscape ? 30 : 36;
           double textSize = isLandscape ? 14 : 18;
-
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Adjust the image size for landscape
                 Flexible(
-                  child: Image.asset('assets/image1.png', width: imageSize, height: imageSize),
+                  child: Image.asset(
+                    'assets/image1.png',
+                    width: imageSize,
+                    height: imageSize,
+                  ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 showControls
                     ? Column(
                         children: [
@@ -215,52 +260,54 @@ class _MusicScreenState extends State<MusicScreen> with WidgetsBindingObserver, 
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               IconButton(
-                                icon: Icon(Icons.skip_previous, color: Colors.blueGrey),
+                                icon: const Icon(
+                                  Icons.skip_previous,
+                                  color: Colors.blueGrey,
+                                ),
                                 onPressed: _playPrevious,
                               ),
                               IconButton(
-                                icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow, color: Colors.blue),
+                                icon: Icon(
+                                  isPlaying ? Icons.pause : Icons.play_arrow,
+                                  color: Colors.blue,
+                                ),
                                 onPressed: _togglePlayPause,
                                 iconSize: iconSize,
                               ),
                               IconButton(
-                                icon: Icon(Icons.skip_next, color: Colors.blueGrey),
+                                icon: const Icon(
+                                  Icons.skip_next,
+                                  color: Colors.blueGrey,
+                                ),
                                 onPressed: _playNext,
                               ),
                             ],
                           ),
-                          SizedBox(height: 15),
+                          const SizedBox(height: 15),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(songName, style: TextStyle(fontSize: textSize, color: Colors.black87)),
+                              Text(
+                                songName,
+                                style: TextStyle(fontSize: textSize, color: Colors.black87),
+                              ),
                               IconButton(
                                 icon: Icon(
                                   isFavorite ? Icons.favorite : Icons.favorite_border,
                                   color: Colors.red,
                                 ),
                                 onPressed: _toggleFavorite,
-                              )
+                              ),
                             ],
                           ),
                         ],
                       )
-                    : IconButton(
-                        icon: Icon(Icons.play_arrow, size: iconSize, color: Colors.blue),
-                        onPressed: () {
-                          _player.play();
-                          setState(() {
-                            isPlaying = true;
-                            showControls = true;
-                          });
-                        },
-                      ),
+                    : const Center(child: CircularProgressIndicator()),
               ],
             ),
           );
         },
       ),
-      backgroundColor: Colors.grey[100],
     );
   }
 }

@@ -1,4 +1,4 @@
-name: flutter_application_1
+name: music_flutter
 description: "A new Flutter project."
 publish_to: 'none'
 
@@ -24,8 +24,9 @@ flutter:
   uses-material-design: true
   assets:
     - assets/image1.png
-    - assets/abdou22.mp3
     - assets/fur elise.mp3
+    - assets/khabib.mp3
+    - assets/nasheed.mp3
     - assets/splash.jpeg
 
 flutter_native_splash:
