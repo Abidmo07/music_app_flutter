@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'database_helper.dart'; // Import your DatabaseHelper
 import 'song_details_screen.dart';
 
 class FavoritesScreen extends StatefulWidget {
@@ -21,17 +21,18 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     _loadFavorites();
   }
 
-  void _loadFavorites() async {
-    final prefs = await SharedPreferences.getInstance();
+  // Load favorites from the database
+  Future<void> _loadFavorites() async {
+    List<String> favorites = await DatabaseHelper.instance.getFavorites();
     setState(() {
-      favoriteSongs = prefs.getKeys().where((key) => prefs.getBool(key) == true).toList();
+      favoriteSongs = favorites;
     });
   }
 
-  void _deleteFavorite(String songName) async {
-    final prefs = await SharedPreferences.getInstance();
+  // Delete a favorite song
+  Future<void> _deleteFavorite(String songName) async {
+    await DatabaseHelper.instance.removeFavorite(songName);
     setState(() {
-      prefs.remove(songName);
       favoriteSongs.remove(songName);
       widget.onSongDeleted(songName);
     });
@@ -149,8 +150,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       Text(
                         "This is a detailed description of the song. Here you can provide more information about the artist, album, or genre of the song.",
                         style: TextStyle(fontSize: 16, color: Colors.black54, height: 1.5),
-                      ),                   
-      ]),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'favorites_screen.dart';
 import 'song_screen.dart';
+import 'database_helper.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
 
@@ -61,25 +61,22 @@ class _MusicScreenState extends State<MusicScreen> with WidgetsBindingObserver, 
   }
 
   Future<void> _loadSong(int index) async {
-    // Load the asset
     await _player.setAsset(songs[index]['asset']!);
     setState(() {
       songName = songs[index]['name']!;
       showControls = true;
-      // When loading a song, we assume it should play:
       isPlaying = true;
     });
     _loadFavoriteStatus();
   }
-
+//this is for handling nav to background
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    // Pause the player when the app goes background
     if (state == AppLifecycleState.paused) {
       _player.pause();
     } else if (state == AppLifecycleState.resumed) {
-      // Resume playing if we believe the song was playing.
+     
       if (isPlaying) {
         _player.play();
       }
@@ -120,7 +117,7 @@ class _MusicScreenState extends State<MusicScreen> with WidgetsBindingObserver, 
   }
 
   void _togglePlayPause() {
-    // Manually toggle play/pause and update the icon accordingly.
+    
     if (isPlaying) {
       _player.pause();
       setState(() {
@@ -134,20 +131,24 @@ class _MusicScreenState extends State<MusicScreen> with WidgetsBindingObserver, 
     }
   }
 
-  void _toggleFavorite() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      isFavorite = !isFavorite;
-      prefs.setBool(songName, isFavorite);
-    });
-  }
+void _toggleFavorite() async {
+  setState(() {
+    isFavorite = !isFavorite;
+  });
 
-  void _loadFavoriteStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      isFavorite = prefs.getBool(songName) ?? false;
-    });
+  if (isFavorite) {
+    await DatabaseHelper.instance.addFavorite(songName);
+  } else {
+    await DatabaseHelper.instance.removeFavorite(songName);
   }
+}
+
+void _loadFavoriteStatus() async {
+  List<String> favorites = await DatabaseHelper.instance.getFavorites();
+  setState(() {
+    isFavorite = favorites.contains(songName);
+  });
+}
 
   void _goToFavorites() {
     _player.stop();

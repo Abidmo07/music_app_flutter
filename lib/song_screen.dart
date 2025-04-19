@@ -6,10 +6,10 @@ class SongScreen extends StatefulWidget {
   final Function(int) onSongSelected;
 
   const SongScreen({
-    Key? key,
+    super.key,
     required this.songs,
     required this.onSongSelected,
-  }) : super(key: key);
+  });
 
   @override
   _SongScreenState createState() => _SongScreenState();
@@ -24,7 +24,7 @@ class _SongScreenState extends State<SongScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Liste des Chansons"),
+        title: const Text("Liste des Chansons",style: TextStyle(color: Colors.white),),
         backgroundColor: Colors.blueGrey,
       ),
       body: orientation == Orientation.portrait
@@ -54,7 +54,6 @@ class _SongScreenState extends State<SongScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        // You can implement your delete logic here if needed
                         Navigator.of(context).pop();
                       },
                       child: Text("Delete"),
@@ -65,7 +64,7 @@ class _SongScreenState extends State<SongScreen> {
             );
           },
           onTap: () {
-            // Instead of playing the song, just pass the selected song to the details screen
+            //pass the song to song_details screen
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -105,7 +104,7 @@ class _SongScreenState extends State<SongScreen> {
             },
           ),
         ),
-        // Show song details in landscape when selectedSong is not null
+        // Show song details in landscape when selectedSong
         if (selectedSong != null)
           Expanded(
             flex: 3,
